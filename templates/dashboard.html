@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Warehouse Project{% endblock %}
+
+{% block content %}
+<section class="grid">
+    <article class="card">
+        <div class="card-label"><span>Total Products</span><span class="mini-dot"></span></div>
+        <div class="card-value">{{ total_products }}</div>
+        <p class="card-note">Active stock items registered in the warehouse inventory.</p>
+    </article>
+
+    <article class="card">
+        <div class="card-label"><span>Total Boxes</span><span class="mini-dot"></span></div>
+        <div class="card-value">{{ total_boxes }}</div>
+        <p class="card-note">Packaging options available for order fulfillment.</p>
+    </article>
+
+    <article class="card">
+        <div class="card-label"><span>Total Orders</span><span class="mini-dot"></span></div>
+        <div class="card-value">{{ total_orders }}</div>
+        <p class="card-note">Orders currently recorded in the warehouse system.</p>
+    </article>
+
+    <article class="card">
+        <div class="card-label"><span>Recommendations</span><span class="mini-dot"></span></div>
+        <div class="card-value">{{ recommendations }}</div>
+        <p class="card-note">Recommended box outputs available for processing.</p>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <h2>Add Product & Recommend Box</h2>
+        <p class="lead">Enter a product’s size and weight here. The system will suggest the most suitable box based on the product’s total volume and load.</p>
+
+        <form method="post" style="display:grid; gap:10px;">
+            {% csrf_token %}
+            <div id="product-list" style="display:grid; gap:12px;">
+                <div class="product-row" style="display:grid; gap:10px; padding:12px; border:1px solid #dbe4ee; border-radius:12px; background:#f8fbff;">
+                    <input type="text" name="name" placeholder="Product name" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <input type="number" step="0.01" name="length" placeholder="Length in cm" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+                        <input type="number" step="0.01" name="width" placeholder="Width in cm" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+                        <input type="number" step="0.01" name="height" placeholder="Height in cm" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+                        <input type="number" step="0.01" name="weight" placeholder="Weight in kg" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+                    </div>
+                    <input type="number" min="1" name="quantity" value="1" aria-label="Quantity" style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+                </div>
+            </div>
+            <button type="button" id="add-product" class="btn secondary">Add Product</button>
+            <button type="submit" class="btn">Recommend Box</button>
+        </form>
+
+        {% if last_items %}
+        <div class="card" style="margin-top:12px; background:#f8fbff;">
+            <div class="card-label"><span>Latest Recommendation</span><span class="mini-dot"></span></div>
+            {% for item in last_items %}
+            <p class="card-note" style="margin-top:8px;">{{ item.product.name }}: Qty {{ item.quantity }}</p>
+            {% endfor %}
+            <p class="card-note"><strong>Total quantity:</strong> {{ last_quantity }}</p>
+            {% if last_box %}
+            <p class="card-note"><strong>Suggested box:</strong> {{ last_box.name }}</p>
+            <p class="card-note">Cost: {{ last_box.cost }} • Max weight: {{ last_box.max_weight }}</p>
+            {% else %}
+            <p class="card-note">No box currently matches this product’s weight and dimensions.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <h2>Daily operations</h2>
+        <p class="lead">This dashboard summarizes the warehouse activity and provides a clean interface for reviewing inventory, packaging, and order flow.</p>
+        <div class="actions">
+            <a href="{% url 'products' %}" class="btn">View Products</a>
+            <a href="{% url 'boxes' %}" class="btn secondary">View Boxes</a>
+            <a href="{% url 'orders' %}" class="btn">View Orders</a>
+            <a href="{% url 'dashboard' %}" class="btn secondary">Refresh Dashboard</a>
+        </div>
+    </article>
+
+    <article class="panel">
+        <h2>System status</h2>
+        <p class="lead">The current configuration is ready for formal reporting and operational review.</p>
+        <div class="status">● Online</div>
+        <p class="card-note" style="margin-top: 10px;">All metrics are pulled from the Django models and displayed in a professional dashboard layout.</p>
+    </article>
+</section>
+
+<section class="panel" style="margin-top: 18px;">
+    <h2>Recent Orders</h2>
+    <p class="lead">Latest order activity from the warehouse system.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Recommended Box</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in orders %}
+                <tr>
+                    <td>#{{ entry.order.id }}</td>
+                    <td>{{ entry.order.created_at }}</td>
+                    <td>{% if entry.recommended_box %}{{ entry.recommended_box.name }}{% else %}No suitable box{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No recent orders are available yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+<script>
+    const productList = document.getElementById('product-list');
+    const addProductButton = document.getElementById('add-product');
+
+    addProductButton.addEventListener('click', function () {
+        const row = productList.querySelector('.product-row').cloneNode(true);
+
+        row.querySelectorAll('input').forEach(function (input) {
+            input.value = input.name === 'quantity' ? '1' : '';
+        });
+
+        if (!row.querySelector('.remove-product')) {
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'btn secondary remove-product';
+            removeButton.textContent = 'Remove';
+            row.appendChild(removeButton);
+        }
+
+        productList.appendChild(row);
+    });
+
+    productList.addEventListener('click', function (event) {
+        const button = event.target.closest('button');
+
+        if (!button) {
+            return;
+        }
+
+        if (button.classList.contains('remove-product')) {
+            button.closest('.product-row').remove();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Products | Warehouse Project{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h2>Product Inventory</h2>
+    <p class="lead">Navigate to the other warehouse modules from here.</p>
+    <div class="actions" style="margin-bottom: 14px;">
+        <a href="{% url 'dashboard' %}" class="btn secondary">Dashboard</a>
+        <a href="{% url 'boxes' %}" class="btn secondary">Boxes</a>
+        <a href="{% url 'orders' %}" class="btn">Orders</a>
+    </div>
+    <p class="lead">A formal overview of all registered products and their physical dimensions.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Length</th>
+                    <th>Width</th>
+                    <th>Height</th>
+                    <th>Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.length }}</td>
+                    <td>{{ product.width }}</td>
+                    <td>{{ product.height }}</td>
+                    <td>{{ product.weight }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No products available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

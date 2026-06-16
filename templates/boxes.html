@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Boxes | Warehouse Project{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h2>Box Admin Dashboard</h2>
+    <p class="lead">Add new boxes or update package dimensions, max weight, and cost.</p>
+    <div class="actions" style="margin-bottom: 14px;">
+        <a href="{% url 'dashboard' %}" class="btn secondary">Dashboard</a>
+        <a href="{% url 'products' %}" class="btn secondary">Products</a>
+        <a href="{% url 'orders' %}" class="btn">Orders</a>
+    </div>
+    {% if notice %}
+    <div class="status" style="margin-bottom: 14px;">{{ notice }}</div>
+    {% endif %}
+
+    <form method="post" style="display:grid; gap:10px; margin-bottom:18px; padding:14px; border:1px solid #dbe4ee; border-radius:12px; background:#f8fbff;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="name" placeholder="Box name" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;">
+            <input type="number" step="0.01" min="0" name="length" placeholder="Length" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+            <input type="number" step="0.01" min="0" name="width" placeholder="Width" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+            <input type="number" step="0.01" min="0" name="height" placeholder="Height" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+            <input type="number" step="0.01" min="0" name="max_weight" placeholder="Max weight" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+            <input type="number" step="0.01" min="0" name="cost" placeholder="Cost" required style="padding:10px; border:1px solid #dbe4ee; border-radius:10px;">
+        </div>
+        <button type="submit" class="btn">Add Box</button>
+    </form>
+
+    <p class="lead">Edit existing boxes and save each row independently.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Length</th>
+                    <th>Width</th>
+                    <th>Height</th>
+                    <th>Max Weight</th>
+                    <th>Cost</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for box in boxes %}
+                <tr>
+                    <td>
+                        <form id="box-form-{{ box.id }}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="box_id" value="{{ box.id }}">
+                        </form>
+                        <input form="box-form-{{ box.id }}" type="text" name="name" value="{{ box.name }}" required style="width:150px; padding:8px; border:1px solid #dbe4ee; border-radius:8px;">
+                    </td>
+                    <td><input form="box-form-{{ box.id }}" type="number" step="0.01" min="0" name="length" value="{{ box.length }}" required style="width:100px; padding:8px; border:1px solid #dbe4ee; border-radius:8px;"></td>
+                    <td><input form="box-form-{{ box.id }}" type="number" step="0.01" min="0" name="width" value="{{ box.width }}" required style="width:100px; padding:8px; border:1px solid #dbe4ee; border-radius:8px;"></td>
+                    <td><input form="box-form-{{ box.id }}" type="number" step="0.01" min="0" name="height" value="{{ box.height }}" required style="width:100px; padding:8px; border:1px solid #dbe4ee; border-radius:8px;"></td>
+                    <td><input form="box-form-{{ box.id }}" type="number" step="0.01" min="0" name="max_weight" value="{{ box.max_weight }}" required style="width:120px; padding:8px; border:1px solid #dbe4ee; border-radius:8px;"></td>
+                    <td><input form="box-form-{{ box.id }}" type="number" step="0.01" min="0" name="cost" value="{{ box.cost }}" required style="width:100px; padding:8px; border:1px solid #dbe4ee; border-radius:8px;"></td>
+                    <td><button form="box-form-{{ box.id }}" type="submit" class="btn secondary">Update</button></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No boxes available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

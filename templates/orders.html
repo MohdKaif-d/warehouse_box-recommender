@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Orders | Warehouse Project{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h2>Order Records</h2>
+    <p class="lead">Jump to the other operational pages from this view.</p>
+    <div class="actions" style="margin-bottom: 14px;">
+        <a href="{% url 'dashboard' %}" class="btn secondary">Dashboard</a>
+        <a href="{% url 'products' %}" class="btn secondary">Products</a>
+        <a href="{% url 'boxes' %}" class="btn">Boxes</a>
+    </div>
+    <p class="lead">Formal listing of recent warehouse orders for review and processing.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.created_at }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No orders available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

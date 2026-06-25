@@ -1,1 +1,27 @@
 
+# AI Chat History
+
+## Prompt 1
+Design a warehouse box recommendation system using Python.
+
+### AI Response
+Suggested using dimensional comparison and selecting the smallest suitable box.
+
+---
+
+## Prompt 2
+How should I structure the Django project?
+
+### AI Response
+Suggested separating app.py, templates, static, and data folders.
+
+---
+
+## Prompt 3
+How can I deploy the project on PythonAnywhere?
+
+### AI Response
+Explained deployment steps and WSGI configuration.
+
+...
+The next step after this is creating the Order and OrderItem models and then implementing the box recommendation algorithm.
